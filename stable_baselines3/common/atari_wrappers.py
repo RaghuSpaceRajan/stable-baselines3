@@ -33,8 +33,8 @@ class NoopResetEnv(gym.Wrapper):
         if self.override_num_noops is not None:
             noops = self.override_num_noops
         else:
-            noops = self.unwrapped.np_random.randint(1, self.noop_max + 1)
-        assert noops > 0
+            noops = self.unwrapped.np_random.randint(1, self.noop_max + 1) if self.noop_max > 0 else 0
+        assert noops >= 0
         obs = np.zeros(0)
         for _ in range(noops):
             obs, _, done, _ = self.env.step(self.noop_action)
@@ -166,12 +166,12 @@ class ClipRewardEnv(gym.RewardWrapper):
 
     def reward(self, reward: float) -> float:
         """
-        Bin reward to {+1, 0, -1} by its sign.
+        Clip reward to {+1, 0, -1} by its sign.
 
         :param reward:
         :return:
         """
-        return np.sign(reward)
+        return np.clip(reward, a_min=-1.0, a_max=1.0) 
 
 
 class WarpFrame(gym.ObservationWrapper):
